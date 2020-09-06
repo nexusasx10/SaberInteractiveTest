@@ -14,19 +14,18 @@ namespace SaberInteractiveTest
         public void Serialize(FileStream s)
         {
             s.Write(BitConverter.GetBytes(Count));
-
             Dictionary<ListNode, int> indexes = new Dictionary<ListNode, int>();
             ListNode currentNode = Head;
-            int index = 0;
+            int curNodeIndex = 0;
+
             while (currentNode != null)
             {
-                indexes[currentNode] = index;
-                var strBytes = Encoding.UTF8.GetBytes(currentNode.Data); 
+                indexes[currentNode] = curNodeIndex;
+                byte[] strBytes = Encoding.UTF8.GetBytes(currentNode.Data);
                 s.Write(BitConverter.GetBytes(strBytes.Length));
                 s.Write(strBytes);
-
                 currentNode = currentNode.Next;
-                index++;
+                curNodeIndex++;
             }
 
             currentNode = Head;
@@ -43,9 +42,9 @@ namespace SaberInteractiveTest
 
         public void Deserialize(FileStream s)
         {
-            using (var br = new BinaryReader(s))
+            using (BinaryReader reader = new BinaryReader(s))
             {
-                Count = br.ReadInt32();
+                Count = reader.ReadInt32();
                 ListNode[] nodes = new ListNode[Count];
 
                 ListNode currentNode = null;
@@ -64,15 +63,15 @@ namespace SaberInteractiveTest
 
                     nodes[i] = currentNode;
 
-                    var dataLength = br.ReadInt32();
-                    currentNode.Data = Encoding.UTF8.GetString(br.ReadBytes(dataLength));
+                    int dataLength = reader.ReadInt32();
+                    currentNode.Data = Encoding.UTF8.GetString(reader.ReadBytes(dataLength));
                 }
 
                 Tail = currentNode;
 
                 for (int i = 0; i < Count; i++)
                 {
-                    int randIndex = br.ReadInt32();
+                    int randIndex = reader.ReadInt32();
                     if (randIndex > -1)
                         nodes[i].Rand = nodes[randIndex];
                 }
@@ -123,11 +122,15 @@ namespace SaberInteractiveTest
                 {
                     if (currentNode.Equals(otherCurrentNode))
                     {
-                        if (currentNode.Rand == null && otherCurrentNode.Rand != null)
-                            return false;
-                        else if (currentNode.Rand != null && otherCurrentNode.Rand == null)
-                            return false;
-                        else if (currentNode.Rand != null && otherCurrentNode.Rand != null && indexes[currentNode.Rand] != otherIndexes[otherCurrentNode.Rand])
+                        bool onlyFirstNull = currentNode.Rand == null &&
+                            otherCurrentNode.Rand != null;
+                        bool onlySecondNull = currentNode.Rand != null &&
+                            otherCurrentNode.Rand == null;
+                        bool notEqual = currentNode.Rand != null &&
+                            otherCurrentNode.Rand != null &&
+                            indexes[currentNode.Rand] != otherIndexes[otherCurrentNode.Rand];
+
+                        if (onlyFirstNull || onlySecondNull || notEqual)
                             return false;
                     }
                     else

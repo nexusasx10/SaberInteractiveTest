@@ -46,12 +46,12 @@ namespace Tests
 
         private ListRand CreateList(params (string, int)[] values)
         {
-            var list = new ListRand()
+            ListRand list = new ListRand()
             {
                 Count = values.Length,
             };
 
-            var items = new ListNode[values.Length];
+            ListNode[] items = new ListNode[values.Length];
 
             ListNode node = null;
             for (int i = 0; i < values.Length; i++)
@@ -81,7 +81,7 @@ namespace Tests
 
             for (int i = 0; i < values.Length; i++)
             {
-                var index = values[i].Item2;
+                int index = values[i].Item2;
                 items[i].Rand = index > -1
                     ? items[index]
                     : null;
