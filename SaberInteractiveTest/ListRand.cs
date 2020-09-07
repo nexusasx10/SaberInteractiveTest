@@ -57,7 +57,10 @@ namespace SaberInteractiveTest
                     }
                     else
                     {
-                        currentNode.Next = new ListNode();
+                        currentNode.Next = new ListNode()
+                        {
+                            Prev = currentNode
+                        };
                         currentNode = currentNode.Next;
                     }
 
@@ -86,28 +89,26 @@ namespace SaberInteractiveTest
             if (Count != other.Count)
                 return false;
 
-            Dictionary<ListNode, int> indexes = new Dictionary<ListNode, int>();
+            Dictionary<ListNode, int> CalculateIndexes(ListRand list)
+            {
+                Dictionary<ListNode, int> indexesInternal = new Dictionary<ListNode, int>();
+                ListNode currentNodeInternal = list.Head;
+                int indexInternal = 0;
+                while (currentNodeInternal != null)
+                {
+                    indexesInternal[currentNodeInternal] = indexInternal;
+                    currentNodeInternal = currentNodeInternal.Next;
+                    indexInternal++;
+                }
+
+                return indexesInternal;
+            }
+
+            Dictionary<ListNode, int> indexes = CalculateIndexes(this);
+            Dictionary<ListNode, int> otherIndexes = CalculateIndexes(other);
+
             ListNode currentNode = Head;
-            int index = 0;
-            while (currentNode != null)
-            {
-                indexes[currentNode] = index;
-                currentNode = currentNode.Next;
-                index++;
-            }
-
-            Dictionary<ListNode, int> otherIndexes = new Dictionary<ListNode, int>();
             ListNode otherCurrentNode = other.Head;
-            int otherIndex = 0;
-            while (otherCurrentNode != null)
-            {
-                otherIndexes[otherCurrentNode] = otherIndex;
-                otherCurrentNode = otherCurrentNode.Next;
-                otherIndex++;
-            }
-
-            currentNode = Head;
-            otherCurrentNode = other.Head;
 
             while (true)
             {

@@ -7,13 +7,11 @@ namespace Tests
     [TestClass]
     public class ListRandTests
     {
-        [TestMethod]
-        public void TestDefault()
+        private void TestBase(ListRand list)
         {
-            ListRand original = CreateList(("1", 1), ("2", 2), ("3", 0));
             using (FileStream file = File.Create("temp"))
             {
-                original.Serialize(file);
+                list.Serialize(file);
             }
 
             ListRand copy = new ListRand();
@@ -22,26 +20,28 @@ namespace Tests
                 copy.Deserialize(file);
             }
 
-            Assert.IsTrue(original.Equals(copy));
+            Assert.IsTrue(list.Equals(copy));
         }
 
+        [TestMethod]
+        public void TestOne()
+        {
+            ListRand original = CreateList(("1", 0));
+            TestBase(original);
+        }
+
+        [TestMethod]
+        public void TestMultiple()
+        {
+            ListRand original = CreateList(("1", 1), ("2", 2), ("3", 0));
+            TestBase(original);
+        }
 
         [TestMethod]
         public void TestNullRand()
         {
             ListRand original = CreateList(("abc", 1), ("def", 2), ("ghi", 0), ("gkl", -1));
-            using (FileStream file = File.Create("temp"))
-            {
-                original.Serialize(file);
-            }
-
-            ListRand copy = new ListRand();
-            using (FileStream file = File.OpenRead("temp"))
-            {
-                copy.Deserialize(file);
-            }
-
-            Assert.IsTrue(original.Equals(copy));
+            TestBase(original);
         }
 
         private ListRand CreateList(params (string, int)[] values)
@@ -53,35 +53,37 @@ namespace Tests
 
             ListNode[] items = new ListNode[values.Length];
 
-            ListNode node = null;
+            ListNode curNode = null;
             for (int i = 0; i < values.Length; i++)
             {
                 ListNode newNode = new ListNode()
                 {
-                    Data = values[i].Item1
+                    Data = values[i].Item1,
+                    Prev = curNode
                 };
 
-                if (node == null)
+                if (curNode == null)
                 {
-                    node = newNode;
+                    curNode = newNode;
                 }
                 else
                 {
-                    node.Next = newNode;
-                    node = newNode;
+                    curNode.Next = newNode;
+                    curNode = newNode;
                 }
 
-                items[i] = node;
+                items[i] = curNode;
 
                 if (list.Head == null)
-                    list.Head = node;
+                    list.Head = curNode;
             }
 
-            list.Tail = node;
+            list.Tail = curNode;
 
             for (int i = 0; i < values.Length; i++)
             {
                 int index = values[i].Item2;
+
                 items[i].Rand = index > -1
                     ? items[index]
                     : null;
