@@ -14,13 +14,13 @@ namespace SaberInteractiveTest
         public void Serialize(FileStream s)
         {
             s.Write(BitConverter.GetBytes(Count));
-            Dictionary<ListNode, int> indexes = new Dictionary<ListNode, int>();
+            var indexDict = new Dictionary<ListNode, int>();
             ListNode currentNode = Head;
             int curNodeIndex = 0;
 
             while (currentNode != null)
             {
-                indexes[currentNode] = curNodeIndex;
+                indexDict[currentNode] = curNodeIndex;
                 byte[] strBytes = Encoding.UTF8.GetBytes(currentNode.Data);
                 s.Write(BitConverter.GetBytes(strBytes.Length));
                 s.Write(strBytes);
@@ -34,7 +34,7 @@ namespace SaberInteractiveTest
                 if (currentNode.Rand == null)
                     s.Write(BitConverter.GetBytes(-1));
                 else
-                    s.Write(BitConverter.GetBytes(indexes[currentNode.Rand]));
+                    s.Write(BitConverter.GetBytes(indexDict[currentNode.Rand]));
 
                 currentNode = currentNode.Next;
             }
@@ -91,21 +91,21 @@ namespace SaberInteractiveTest
 
             Dictionary<ListNode, int> CalculateIndexes(ListRand list)
             {
-                Dictionary<ListNode, int> indexesInternal = new Dictionary<ListNode, int>();
+                var indexDictInternal = new Dictionary<ListNode, int>();
                 ListNode currentNodeInternal = list.Head;
                 int indexInternal = 0;
                 while (currentNodeInternal != null)
                 {
-                    indexesInternal[currentNodeInternal] = indexInternal;
+                    indexDictInternal[currentNodeInternal] = indexInternal;
                     currentNodeInternal = currentNodeInternal.Next;
                     indexInternal++;
                 }
 
-                return indexesInternal;
+                return indexDictInternal;
             }
 
-            Dictionary<ListNode, int> indexes = CalculateIndexes(this);
-            Dictionary<ListNode, int> otherIndexes = CalculateIndexes(other);
+            Dictionary<ListNode, int> indexDict = CalculateIndexes(this);
+            Dictionary<ListNode, int> otherIndexDict = CalculateIndexes(other);
 
             ListNode currentNode = Head;
             ListNode otherCurrentNode = other.Head;
@@ -129,7 +129,7 @@ namespace SaberInteractiveTest
                             otherCurrentNode.Rand == null;
                         bool notEqual = currentNode.Rand != null &&
                             otherCurrentNode.Rand != null &&
-                            indexes[currentNode.Rand] != otherIndexes[otherCurrentNode.Rand];
+                            indexDict[currentNode.Rand] != otherIndexDict[otherCurrentNode.Rand];
 
                         if (onlyFirstNull || onlySecondNull || notEqual)
                             return false;
